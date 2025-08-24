@@ -5,8 +5,9 @@ public class CalculatorREPL {
     public static void main(String[] args) {
         System.out.println("Calculator Language REPL");
         System.out.println("========================");
-        System.out.println("Enter arithmetic expressions using integers and operators (+, -, *, /, %)");
+        System.out.println("Enter arithmetic expressions using integers and operators (+, -, *, /, %, ^)");
         System.out.println("Supports parentheses for grouping");
+        System.out.println("Supports prefix factorial (!n) - e.g., !3 = 6");
         System.out.println("Type 'exit' or 'quit' to end the session");
         System.out.println();
         

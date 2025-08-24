@@ -32,7 +32,7 @@ public class Parser {
     }
     
     private ASTNode parseMultiplication() {
-        ASTNode left = parsePrimary();
+        ASTNode left = parseExponentiation();
         
         while (getCurrentToken().type == TokenType.OPERATOR && 
                (getCurrentToken().value.equals("*") || 
@@ -40,8 +40,22 @@ public class Parser {
                 getCurrentToken().value.equals("%"))) {
             char op = getCurrentToken().value.charAt(0);
             advance();
-            ASTNode right = parsePrimary();
+            ASTNode right = parseExponentiation();
             left = new BinaryOpNode(left, op, right);
+        }
+        
+        return left;
+    }
+    
+    private ASTNode parseExponentiation() {
+        ASTNode left = parsePrimary();
+        
+        if (getCurrentToken().type == TokenType.OPERATOR && 
+            getCurrentToken().value.equals("^")) {
+            char op = getCurrentToken().value.charAt(0);
+            advance();
+            ASTNode right = parseExponentiation();
+            return new BinaryOpNode(left, op, right);
         }
         
         return left;
@@ -49,6 +63,11 @@ public class Parser {
     
     private ASTNode parsePrimary() {
         Token token = getCurrentToken();
+        
+        if (token.type == TokenType.FACTORIAL) {
+            advance();
+            return new UnaryOpNode('!', parsePrimary());
+        }
         
         if (token.type == TokenType.NUMBER) {
             advance();

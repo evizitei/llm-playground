@@ -23,6 +23,9 @@ public class Lexer {
             
             if (Character.isDigit(current)) {
                 tokens.add(readNumber());
+            } else if (current == '!') {
+                tokens.add(new Token(TokenType.FACTORIAL, "!"));
+                position++;
             } else if (isOperator(current)) {
                 tokens.add(new Token(TokenType.OPERATOR, String.valueOf(current)));
                 position++;
@@ -53,13 +56,14 @@ public class Lexer {
     }
     
     private boolean isOperator(char c) {
-        return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
+        return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
     }
 }
 
 enum TokenType {
     NUMBER,
     OPERATOR,
+    FACTORIAL,
     LPAREN,
     RPAREN,
     EOF
