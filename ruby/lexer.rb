@@ -11,6 +11,7 @@ class Lexer
     RPAREN: /\A\)/,
     WHITESPACE: /\A\s+/,
     EXPONENT: /\A\^/,
+    FACTORIAL: /\A!/,
   }.freeze
 
   Token = Struct.new(:type, :value)

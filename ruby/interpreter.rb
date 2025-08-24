@@ -59,8 +59,18 @@ class Interpreter
     case node.operator
     when '-'
       -operand_value
+    when '1'
+      factorial(operand_value)
     else
       raise "Unknown unary operator: #{node.operator}"
     end
+  end
+end
+
+def factorial(n)
+  if n == 0
+    1
+  else
+    n * factorial(n - 1)
   end
 end

@@ -51,6 +51,10 @@ class Parser
       consume(:MINUS)
       operand = unary_expression
       AST::UnaryOpNode.new('-', operand)
+    elsif current_token && current_token.type == :FACTORIAL
+      consume(:FACTORIAL)
+      operand = unary_expression
+      AST::UnaryOpNode.new('!', operand)
     else
       primary_expression
     end
