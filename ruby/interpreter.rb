@@ -59,7 +59,7 @@ class Interpreter
     case node.operator
     when '-'
       -operand_value
-    when '1'
+    when '!'
       factorial(operand_value)
     else
       raise "Unknown unary operator: #{node.operator}"
