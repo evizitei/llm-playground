@@ -1,0 +1,23 @@
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = 'spec/**/*_spec.rb'
+  t.rspec_opts = '--format documentation --color'
+end
+
+task :test => :spec
+
+task :default => :spec
+
+desc "Run tests with coverage report"
+task :test_with_summary do
+  puts "\n" + "="*60
+  puts "Running Calculator Test Suite"
+  puts "="*60 + "\n"
+  
+  Rake::Task[:spec].invoke
+  
+  puts "\n" + "="*60
+  puts "Test Suite Complete"
+  puts "="*60
+end
