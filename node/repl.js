@@ -12,7 +12,7 @@ const rl = readline.createInterface({
 });
 
 console.log('Calculator REPL v1.0');
-console.log('Enter arithmetic expressions using integers and operators (+, -, *, /, %)');
+console.log('Enter arithmetic expressions using integers and operators (+, -, *, /, %, ^, !)');
 console.log('Type "exit" or press Ctrl+C to quit\n');
 
 const interpreter = new Interpreter();

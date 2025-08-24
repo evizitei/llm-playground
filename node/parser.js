@@ -18,7 +18,7 @@ class Parser {
   factor() {
     const token = this.currentToken;
 
-    if (token.type === TokenType.PLUS || token.type === TokenType.MINUS) {
+    if (token.type === TokenType.PLUS || token.type === TokenType.MINUS || token.type === TokenType.FACTORIAL) {
       this.advance();
       return new UnaryOpNode(token.type, this.factor());
     }
@@ -41,15 +41,27 @@ class Parser {
     throw new Error(`Unexpected token: ${token.type}`);
   }
 
-  term() {
+  power() {
     let node = this.factor();
+
+    while (this.currentToken.type === TokenType.EXPONENT) {
+      const token = this.currentToken;
+      this.advance();
+      node = new BinaryOpNode(node, token.type, this.factor());
+    }
+
+    return node;
+  }
+
+  term() {
+    let node = this.power();
 
     while (this.currentToken.type === TokenType.MULTIPLY || 
            this.currentToken.type === TokenType.DIVIDE ||
            this.currentToken.type === TokenType.MODULO) {
       const token = this.currentToken;
       this.advance();
-      node = new BinaryOpNode(node, token.type, this.factor());
+      node = new BinaryOpNode(node, token.type, this.power());
     }
 
     return node;

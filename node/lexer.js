@@ -5,6 +5,8 @@ const TokenType = {
   MULTIPLY: 'MULTIPLY',
   DIVIDE: 'DIVIDE',
   MODULO: 'MODULO',
+  EXPONENT: 'EXPONENT',
+  FACTORIAL: 'FACTORIAL',
   LPAREN: 'LPAREN',
   RPAREN: 'RPAREN',
   EOF: 'EOF'
@@ -82,6 +84,16 @@ class Lexer {
       if (this.currentChar === '%') {
         this.advance();
         return new Token(TokenType.MODULO, '%');
+      }
+
+      if (this.currentChar === '^') {
+        this.advance();
+        return new Token(TokenType.EXPONENT, '^');
+      }
+
+      if (this.currentChar === '!') {
+        this.advance();
+        return new Token(TokenType.FACTORIAL, '!');
       }
 
       if (this.currentChar === '(') {

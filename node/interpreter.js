@@ -22,6 +22,18 @@ class Interpreter {
         return +operand;
       case TokenType.MINUS:
         return -operand;
+      case TokenType.FACTORIAL:
+        if (operand < 0) {
+          throw new Error('Factorial of negative number');
+        }
+        if (!Number.isInteger(operand)) {
+          throw new Error('Factorial of non-integer');
+        }
+        let result = 1;
+        for (let i = 2; i <= operand; i++) {
+          result *= i;
+        }
+        return result;
       default:
         throw new Error(`Unknown unary operator: ${node.operator}`);
     }
@@ -48,6 +60,8 @@ class Interpreter {
           throw new Error('Modulo by zero');
         }
         return left % right;
+      case TokenType.EXPONENT:
+        return Math.pow(left, right);
       default:
         throw new Error(`Unknown binary operator: ${node.operator}`);
     }
