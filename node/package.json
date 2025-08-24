@@ -1,0 +1,25 @@
+{
+  "name": "calculator-lang",
+  "version": "1.0.0",
+  "description": "A simple calculator programming language with REPL",
+  "main": "repl.js",
+  "scripts": {
+    "start": "node repl.js",
+    "test": "node test.js"
+  },
+  "bin": {
+    "calc": "./repl.js"
+  },
+  "keywords": [
+    "calculator",
+    "repl",
+    "interpreter",
+    "parser",
+    "ast"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
