@@ -36,8 +36,7 @@ class Parser
 
   def multiplicative_expression
     left = unary_expression
-
-    while current_token && [:MULTIPLY, :DIVIDE, :MODULO].include?(current_token.type)
+    while current_token && [:MULTIPLY, :DIVIDE, :MODULO, :EXPONENT].include?(current_token.type)
       operator = current_token.value
       consume(current_token.type)
       right = unary_expression

@@ -28,7 +28,6 @@ class REPL
         # Tokenize the input
         lexer = Lexer.new(input)
         tokens = lexer.tokenize
-
         # Parse tokens into AST
         parser = Parser.new(tokens)
         ast = parser.parse

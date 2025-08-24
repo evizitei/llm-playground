@@ -36,6 +36,8 @@ class Interpreter
       left_value - right_value
     when '*'
       left_value * right_value
+    when '^'
+      left_value ** right_value
     when '/'
       if right_value == 0
         raise "Division by zero"

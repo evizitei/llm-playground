@@ -9,7 +9,8 @@ class Lexer
     MODULO: /\A%/,
     LPAREN: /\A\(/,
     RPAREN: /\A\)/,
-    WHITESPACE: /\A\s+/
+    WHITESPACE: /\A\s+/,
+    EXPONENT: /\A\^/,
   }.freeze
 
   Token = Struct.new(:type, :value)
