@@ -7,5 +7,7 @@ then compare what you did to a reference solution by checking out the "next" ste
 
 STEP_0: NOTHING
 STEP_1: Basic Calculator REPL.
+STEP_2: Add an exponentiation (^) operator and a factorial (!) operator.
+STEP_3: Write a suite of tests for the base calculator
 
-NEXT: Add an exponentiation (^) operator and a factorial (!) operator.
+NEXT: Produce AST visualizations for any given expression
