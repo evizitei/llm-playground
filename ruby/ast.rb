@@ -32,4 +32,12 @@ module AST
       @operand = operand
     end
   end
+
+  class RenderNode < Node
+    attr_reader :expression
+
+    def initialize(expression)
+      @expression = expression
+    end
+  end
 end

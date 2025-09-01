@@ -9,6 +9,7 @@ const TokenType = {
   FACTORIAL: 'FACTORIAL',
   LPAREN: 'LPAREN',
   RPAREN: 'RPAREN',
+  RENDER: 'RENDER',
   EOF: 'EOF'
 };
 
@@ -50,11 +51,28 @@ class Lexer {
     return parseInt(numStr, 10);
   }
 
+  identifier() {
+    let idStr = '';
+    while (this.currentChar !== null && /[a-zA-Z]/.test(this.currentChar)) {
+      idStr += this.currentChar;
+      this.advance();
+    }
+    return idStr;
+  }
+
   getNextToken() {
     while (this.currentChar !== null) {
       if (/\s/.test(this.currentChar)) {
         this.skipWhitespace();
         continue;
+      }
+
+      if (/[a-zA-Z]/.test(this.currentChar)) {
+        const id = this.identifier();
+        if (id === 'render') {
+          return new Token(TokenType.RENDER, 'render');
+        }
+        throw new Error(`Unknown identifier: ${id}`);
       }
 
       if (/\d/.test(this.currentChar)) {

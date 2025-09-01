@@ -8,6 +8,7 @@ public class CalculatorREPL {
         System.out.println("Enter arithmetic expressions using integers and operators (+, -, *, /, %, ^)");
         System.out.println("Supports parentheses for grouping");
         System.out.println("Supports prefix factorial (!n) - e.g., !3 = 6");
+        System.out.println("Use 'render <expression>' to see the AST structure");
         System.out.println("Type 'exit' or 'quit' to end the session");
         System.out.println();
         
@@ -28,7 +29,7 @@ public class CalculatorREPL {
             }
             
             try {
-                int result = interpreter.interpret(input);
+                String result = interpreter.interpret(input);
                 System.out.println(result);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());

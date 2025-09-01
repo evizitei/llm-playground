@@ -10,17 +10,13 @@ public class Parser {
     }
     
     public ASTNode parse() {
-        ASTNode result = parseExpression();
-        
-        // Check if there are any unexpected tokens after the expression
-        if (getCurrentToken().type != TokenType.EOF) {
-            if (getCurrentToken().type == TokenType.RPAREN) {
-                throw new IllegalArgumentException("Unexpected closing parenthesis - no matching opening parenthesis");
-            }
-            throw new IllegalArgumentException("Unexpected token after expression: " + getCurrentToken());
+        // Check if this is a render expression
+        if (getCurrentToken().type == TokenType.RENDER) {
+            advance();
+            ASTNode expr = parseExpression();
+            return new RenderNode(expr);
         }
-        
-        return result;
+        return parseExpression();
     }
     
     private ASTNode parseExpression() {
@@ -93,10 +89,6 @@ public class Parser {
             }
             advance();
             return node;
-        }
-        
-        if (token.type == TokenType.RPAREN) {
-            throw new IllegalArgumentException("Unexpected closing parenthesis - no matching opening parenthesis");
         }
         
         if (token.type == TokenType.OPERATOR && token.value.equals("-")) {

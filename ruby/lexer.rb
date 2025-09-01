@@ -1,6 +1,7 @@
 # Lexer for calculator language
 class Lexer
   TOKEN_TYPES = {
+    RENDER: /\Arender/,
     INTEGER: /\A\d+/,
     PLUS: /\A\+/,
     MINUS: /\A-/,

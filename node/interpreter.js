@@ -1,6 +1,11 @@
 const { TokenType } = require('./lexer');
+const { ASTRenderer } = require('./astRenderer');
 
 class Interpreter {
+  constructor() {
+    this.renderer = new ASTRenderer();
+  }
+
   visit(node) {
     const methodName = `visit${node.type}`;
     const method = this[methodName];
@@ -65,6 +70,10 @@ class Interpreter {
       default:
         throw new Error(`Unknown binary operator: ${node.operator}`);
     }
+  }
+
+  visitRENDER(node) {
+    return this.renderer.render(node.expression);
   }
 
   evaluate(ast) {

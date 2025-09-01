@@ -8,7 +8,15 @@ class Parser
   end
 
   def parse
-    result = expression
+    # Check if this is a render expression
+    if current_token && current_token.type == :RENDER
+      consume(:RENDER)
+      expr = expression
+      result = AST::RenderNode.new(expr)
+    else
+      result = expression
+    end
+    
     if @position < @tokens.length
       raise "Unexpected token after expression: #{current_token.value}"
     end

@@ -1,4 +1,5 @@
 require_relative 'ast'
+require_relative 'ast_renderer'
 
 # Interpreter that evaluates AST nodes using the visitor pattern
 class Interpreter
@@ -14,6 +15,8 @@ class Interpreter
       visit_binary_op(node)
     when AST::UnaryOpNode
       visit_unary_op(node)
+    when AST::RenderNode
+      visit_render(node)
     else
       raise "Unknown node type: #{node.class}"
     end
@@ -64,6 +67,11 @@ class Interpreter
     else
       raise "Unknown unary operator: #{node.operator}"
     end
+  end
+
+  def visit_render(node)
+    renderer = ASTRenderer.new
+    renderer.render(node.expression)
   end
 end
 

@@ -28,4 +28,11 @@ class UnaryOpNode extends ASTNode {
   }
 }
 
-module.exports = { ASTNode, NumberNode, BinaryOpNode, UnaryOpNode };
+class RenderNode extends ASTNode {
+  constructor(expression) {
+    super('RENDER');
+    this.expression = expression;
+  }
+}
+
+module.exports = { ASTNode, NumberNode, BinaryOpNode, UnaryOpNode, RenderNode };

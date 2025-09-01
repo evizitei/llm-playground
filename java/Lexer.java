@@ -23,6 +23,8 @@ public class Lexer {
             
             if (Character.isDigit(current)) {
                 tokens.add(readNumber());
+            } else if (Character.isLetter(current)) {
+                tokens.add(readKeyword());
             } else if (current == '!') {
                 tokens.add(new Token(TokenType.FACTORIAL, "!"));
                 position++;
@@ -55,6 +57,22 @@ public class Lexer {
         return new Token(TokenType.NUMBER, number.toString());
     }
     
+    private Token readKeyword() {
+        StringBuilder keyword = new StringBuilder();
+        
+        while (position < input.length() && Character.isLetter(input.charAt(position))) {
+            keyword.append(input.charAt(position));
+            position++;
+        }
+        
+        String word = keyword.toString();
+        if (word.equals("render")) {
+            return new Token(TokenType.RENDER, word);
+        } else {
+            throw new IllegalArgumentException("Unknown keyword: " + word);
+        }
+    }
+    
     private boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
     }
@@ -66,6 +84,7 @@ enum TokenType {
     FACTORIAL,
     LPAREN,
     RPAREN,
+    RENDER,
     EOF
 }
 

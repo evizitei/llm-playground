@@ -1,5 +1,13 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ASTNode {
     public abstract int evaluate();
+    public abstract String renderTree(String prefix, boolean isLast);
+    
+    public String render() {
+        return renderTree("", true);
+    }
 }
 
 class NumberNode extends ASTNode {
@@ -12,6 +20,12 @@ class NumberNode extends ASTNode {
     @Override
     public int evaluate() {
         return value;
+    }
+    
+    @Override
+    public String renderTree(String prefix, boolean isLast) {
+        String connector = isLast ? "└── " : "├── ";
+        return prefix + connector + "Number(" + value + ")\n";
     }
 }
 
@@ -44,6 +58,17 @@ class UnaryOpNode extends ASTNode {
             default:
                 throw new IllegalArgumentException("Unknown unary operator: " + operator);
         }
+    }
+    
+    @Override
+    public String renderTree(String prefix, boolean isLast) {
+        String connector = isLast ? "└── " : "├── ";
+        String extension = isLast ? "    " : "│   ";
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(prefix).append(connector).append("UnaryOp(").append(operator).append(")\n");
+        sb.append(operand.renderTree(prefix + extension, true));
+        return sb.toString();
     }
 }
 
@@ -92,5 +117,40 @@ class BinaryOpNode extends ASTNode {
             default:
                 throw new IllegalArgumentException("Unknown operator: " + operator);
         }
+    }
+    
+    @Override
+    public String renderTree(String prefix, boolean isLast) {
+        String connector = isLast ? "└── " : "├── ";
+        String extension = isLast ? "    " : "│   ";
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(prefix).append(connector).append("BinaryOp(").append(operator).append(")\n");
+        sb.append(left.renderTree(prefix + extension, false));
+        sb.append(right.renderTree(prefix + extension, true));
+        return sb.toString();
+    }
+}
+
+class RenderNode extends ASTNode {
+    private final ASTNode expression;
+    
+    public RenderNode(ASTNode expression) {
+        this.expression = expression;
+    }
+    
+    @Override
+    public int evaluate() {
+        // RenderNode doesn't evaluate to a number, it renders the tree
+        throw new UnsupportedOperationException("RenderNode cannot be evaluated to an integer");
+    }
+    
+    @Override
+    public String renderTree(String prefix, boolean isLast) {
+        return expression.renderTree(prefix, isLast);
+    }
+    
+    public ASTNode getExpression() {
+        return expression;
     }
 }

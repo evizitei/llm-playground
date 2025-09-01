@@ -1,5 +1,5 @@
 const { TokenType } = require('./lexer');
-const { NumberNode, BinaryOpNode, UnaryOpNode } = require('./ast');
+const { NumberNode, BinaryOpNode, UnaryOpNode, RenderNode } = require('./ast');
 
 class Parser {
   constructor(tokens) {
@@ -80,8 +80,25 @@ class Parser {
     return node;
   }
 
+  statement() {
+    if (this.currentToken.type === TokenType.RENDER) {
+      this.advance();
+      if (this.currentToken.type !== TokenType.LPAREN) {
+        throw new Error('Expected opening parenthesis after render');
+      }
+      this.advance();
+      const expr = this.expression();
+      if (this.currentToken.type !== TokenType.RPAREN) {
+        throw new Error('Expected closing parenthesis');
+      }
+      this.advance();
+      return new RenderNode(expr);
+    }
+    return this.expression();
+  }
+
   parse() {
-    const ast = this.expression();
+    const ast = this.statement();
     if (this.currentToken.type !== TokenType.EOF) {
       throw new Error(`Unexpected token at end: ${this.currentToken.type}`);
     }

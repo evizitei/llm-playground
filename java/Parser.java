@@ -10,6 +10,12 @@ public class Parser {
     }
     
     public ASTNode parse() {
+        // Check if this is a render expression
+        if (getCurrentToken().type == TokenType.RENDER) {
+            advance();
+            ASTNode expr = parseExpression();
+            return new RenderNode(expr);
+        }
         return parseExpression();
     }
     
