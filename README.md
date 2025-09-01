@@ -5,11 +5,11 @@ The intent is that there are different long term TAGs (branches) in the repo
 that mark milestones in development so that you can work forward yourself in any language, and
 then compare what you did to a reference solution by checking out the "next" step.
 
-STEP_0: NOTHING
-STEP_1: Basic Calculator REPL.
-STEP_2: Add an exponentiation (^) operator and a factorial (!) operator.
-STEP_3: Write a suite of tests for the base calculator
-STEP_4: Produce AST visualizations for any given expression
+- STEP_0: NOTHING
+- STEP_1: Basic Calculator REPL.
+- STEP_2: Add an exponentiation (^) operator and a factorial (!) operator.
+- STEP_3: Write a suite of tests for the base calculator
+- STEP_4: Produce AST visualizations for any given expression
 
 Next: Allow assigning values to symbols (variables), 
   and re-using those symbols throughout an expression.
