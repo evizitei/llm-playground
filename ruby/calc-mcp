@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Change to the script directory
+cd "$SCRIPT_DIR"
+
+# Source rbenv if it exists (this sets up the correct Ruby version)
+if [ -f "$HOME/.rbenv/bin/rbenv" ]; then
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+elif [ -f "/usr/local/bin/rbenv" ]; then
+    export PATH="/usr/local/bin:$PATH"
+    eval "$(rbenv init -)"
+elif [ -f "/opt/homebrew/bin/rbenv" ]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+    eval "$(rbenv init -)"
+fi
+
+# Verify we have the correct Ruby version
+if [ -f ".ruby-version" ]; then
+    EXPECTED_VERSION=$(cat .ruby-version | tr -d '\n')
+    CURRENT_VERSION=$(ruby --version | cut -d' ' -f2)
+    
+    if [[ "$CURRENT_VERSION" != "$EXPECTED_VERSION"* ]]; then
+        echo "Error: Expected Ruby $EXPECTED_VERSION, but got $CURRENT_VERSION" >&2
+        echo "Please ensure rbenv is properly configured and Ruby $EXPECTED_VERSION is installed" >&2
+        exit 1
+    fi
+fi
+
+# Check if Bundler is available
+if ! command -v bundle &> /dev/null; then
+    echo "Error: Bundler is not installed. Please install it with: gem install bundler" >&2
+    exit 1
+fi
+
+# Check if Gemfile exists
+if [ ! -f "Gemfile" ]; then
+    echo "Error: Gemfile not found in $SCRIPT_DIR" >&2
+    exit 1
+fi
+
+# Install dependencies if needed (silent unless there's an error)
+bundle check &> /dev/null || bundle install --quiet
+
+# Run the MCP server with bundler
+exec bundle exec ruby calc_mcp.rb
