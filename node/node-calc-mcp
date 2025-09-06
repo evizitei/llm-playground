@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Change to the script directory
+cd "$SCRIPT_DIR"
+
+# Source nvm if it exists (this sets up the correct Node version)
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+
+if [ -f "$NVM_DIR/nvm.sh" ]; then
+    . "$NVM_DIR/nvm.sh"
+elif [ -f "/usr/local/opt/nvm/nvm.sh" ]; then
+    . "/usr/local/opt/nvm/nvm.sh"
+elif [ -f "/opt/homebrew/opt/nvm/nvm.sh" ]; then
+    . "/opt/homebrew/opt/nvm/nvm.sh"
+fi
+
+# Use the correct Node version if .node-version exists
+if [ -f ".node-version" ]; then
+    EXPECTED_VERSION=$(cat .node-version | tr -d '\n')
+    
+    # Try to use the specified version
+    if command -v nvm &> /dev/null; then
+        nvm use "$EXPECTED_VERSION" &> /dev/null || true
+    fi
+    
+    # Verify we have the correct major version at least
+    CURRENT_VERSION=$(node --version | tr -d 'v')
+    EXPECTED_MAJOR=$(echo "$EXPECTED_VERSION" | cut -d'.' -f1)
+    CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f1)
+    
+    if [ "$CURRENT_MAJOR" -lt "$EXPECTED_MAJOR" ]; then
+        echo "Error: Expected Node.js $EXPECTED_VERSION or higher, but got $CURRENT_VERSION" >&2
+        echo "Please ensure Node.js $EXPECTED_VERSION is installed" >&2
+        exit 1
+    fi
+fi
+
+# Check if Node is available
+if ! command -v node &> /dev/null; then
+    echo "Error: Node.js is not installed" >&2
+    exit 1
+fi
+
+# Check if package.json exists
+if [ ! -f "package.json" ]; then
+    echo "Error: package.json not found in $SCRIPT_DIR" >&2
+    exit 1
+fi
+
+# Check if node_modules exists, if not install dependencies
+if [ ! -d "node_modules" ] || [ ! -d "node_modules/@modelcontextprotocol" ]; then
+    echo "Installing dependencies..." >&2
+    npm install --silent 2>&1 | grep -v "npm notice" >&2
+fi
+
+# Run the MCP server
+exec node calc_mcp.js
