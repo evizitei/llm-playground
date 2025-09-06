@@ -147,5 +147,98 @@ The calculator language consists of several components:
 - `Parser.java` - Parser for building AST from tokens
 - `ASTNode.java` - AST node definitions
 - `Interpreter.java` - Interpreter for evaluating expressions
+- `JavaCalcMCP.java` - MCP server wrapper for the calculator
+- `java-calc-mcp` - Executable script for running the MCP server
 - `.java-version` - Specifies the required Java version (21)
 - `.gitignore` - Git ignore file for Java projects
+
+## MCP (Model Context Protocol) Server
+
+This calculator is also available as an MCP server that can be integrated with Claude Desktop or other MCP-compatible clients.
+
+### MCP Features
+
+The JavaCalc MCP server exposes a `calculate` tool that allows Claude to evaluate mathematical expressions using this calculator implementation.
+
+### Building the MCP Server
+
+The MCP server requires Maven for dependency management. If you don't have Maven installed:
+
+```bash
+# macOS
+brew install maven
+
+# Other platforms
+# Download from https://maven.apache.org/download.cgi
+```
+
+Build the MCP server:
+
+```bash
+mvn clean package -DskipTests
+```
+
+This creates a JAR file with all dependencies at `target/calculator-app-1.0-SNAPSHOT-jar-with-dependencies.jar`.
+
+### Running the MCP Server
+
+The easiest way to run the MCP server is using the provided executable script:
+
+```bash
+./java-calc-mcp
+```
+
+This script will:
+- Verify Java 11+ is installed
+- Build the project if needed
+- Run the MCP server with proper classpath
+
+You can also run it directly with Java:
+
+```bash
+java -jar target/calculator-app-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+### Installing in Claude Desktop
+
+To use this calculator as an MCP tool in Claude Desktop:
+
+1. Ensure the project is built (run `mvn clean package -DskipTests`)
+
+2. Add the following to your Claude Desktop configuration file:
+   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+   - Linux: `~/.config/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "java-calc": {
+      "command": "/absolute/path/to/java-calc-mcp"
+    }
+  }
+}
+```
+
+Replace `/absolute/path/to/java-calc-mcp` with the full path to the `java-calc-mcp` script in this project.
+
+3. Restart Claude Desktop
+
+4. Claude will now have access to the `calculate` tool to evaluate mathematical expressions
+
+### Testing the MCP Server
+
+You can test the MCP server using JSON-RPC commands:
+
+```bash
+# Initialize the server
+echo '{"jsonrpc":"2.0","method":"initialize","params":{},"id":1}' | ./java-calc-mcp
+
+# List available tools
+echo '{"jsonrpc":"2.0","method":"tools/list","params":{},"id":1}' | ./java-calc-mcp
+
+# Calculate an expression
+echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"calculate","arguments":{"expression":"2 + 3 * 4"}},"id":1}' | ./java-calc-mcp
+```
+
+Expected output for calculation: `{"jsonrpc":"2.0","id":1,"result":{"content":[{"type":"text","text":"14"}],"isError":false}}`
