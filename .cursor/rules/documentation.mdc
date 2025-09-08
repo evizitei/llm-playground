@@ -1,0 +1,5 @@
+---
+description: When writing documentation for classes or functions or expressions, do not just write text that summarizes what the code does (unless it's very unusual or obtuse).  Instead provide short context documentation about why this particular function exists and any assumptions it makes. Focus on the WHY, not the HOW.
+globs:
+alwaysApply: false
+---
