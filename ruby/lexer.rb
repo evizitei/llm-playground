@@ -2,7 +2,9 @@
 class Lexer
   TOKEN_TYPES = {
     RENDER: /\Arender/,
+    IDENTIFIER: /\A[a-zA-Z][a-zA-Z0-9_]*/,
     INTEGER: /\A\d+/,
+    EQUALS: /\A=/,
     PLUS: /\A\+/,
     MINUS: /\A-/,
     MULTIPLY: /\A\*/,
@@ -45,6 +47,8 @@ class Lexer
         
         if type == :INTEGER
           return Token.new(type, value.to_i)
+        elsif type == :IDENTIFIER
+          return Token.new(type, value)
         else
           return Token.new(type, value)
         end

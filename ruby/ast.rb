@@ -40,4 +40,21 @@ module AST
       @expression = expression
     end
   end
+
+  class VariableNode < Node
+    attr_reader :name
+
+    def initialize(name)
+      @name = name
+    end
+  end
+
+  class AssignmentNode < Node
+    attr_reader :name, :value
+
+    def initialize(name, value)
+      @name = name
+      @value = value
+    end
+  end
 end

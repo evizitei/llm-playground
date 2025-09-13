@@ -3,6 +3,10 @@ require_relative 'ast_renderer'
 
 # Interpreter that evaluates AST nodes using the visitor pattern
 class Interpreter
+  def initialize
+    @variables = {}
+  end
+
   def evaluate(node)
     visit(node)
   end
@@ -17,6 +21,10 @@ class Interpreter
       visit_unary_op(node)
     when AST::RenderNode
       visit_render(node)
+    when AST::VariableNode
+      visit_variable(node)
+    when AST::AssignmentNode
+      visit_assignment(node)
     else
       raise "Unknown node type: #{node.class}"
     end
@@ -72,6 +80,19 @@ class Interpreter
   def visit_render(node)
     renderer = ASTRenderer.new
     renderer.render(node.expression)
+  end
+
+  def visit_variable(node)
+    unless @variables.key?(node.name)
+      raise "Undefined variable: #{node.name}"
+    end
+    @variables[node.name]
+  end
+
+  def visit_assignment(node)
+    value = visit(node.value)
+    @variables[node.name] = value
+    value
   end
 end
 

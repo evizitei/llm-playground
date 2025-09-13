@@ -13,10 +13,13 @@ class Parser
       consume(:RENDER)
       expr = expression
       result = AST::RenderNode.new(expr)
+    # Check if this is an assignment
+    elsif peek_assignment?
+      result = assignment
     else
       result = expression
     end
-    
+
     if @position < @tokens.length
       raise "Unexpected token after expression: #{current_token.value}"
     end
@@ -24,6 +27,21 @@ class Parser
   end
 
   private
+
+  def peek_assignment?
+    # Check if we have IDENTIFIER followed by EQUALS
+    return false unless current_token && current_token.type == :IDENTIFIER
+    return false unless @position + 1 < @tokens.length
+    @tokens[@position + 1].type == :EQUALS
+  end
+
+  def assignment
+    name = current_token.value
+    consume(:IDENTIFIER)
+    consume(:EQUALS)
+    value = expression
+    AST::AssignmentNode.new(name, value)
+  end
 
   def expression
     additive_expression
@@ -73,13 +91,17 @@ class Parser
       value = current_token.value
       consume(:INTEGER)
       AST::IntegerNode.new(value)
+    elsif current_token && current_token.type == :IDENTIFIER
+      name = current_token.value
+      consume(:IDENTIFIER)
+      AST::VariableNode.new(name)
     elsif current_token && current_token.type == :LPAREN
       consume(:LPAREN)
       expr = expression
       consume(:RPAREN)
       expr
     else
-      raise "Expected integer or '(' but got #{current_token ? current_token.value : 'EOF'}"
+      raise "Expected integer, variable, or '(' but got #{current_token ? current_token.value : 'EOF'}"
     end
   end
 
