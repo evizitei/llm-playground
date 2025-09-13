@@ -4,6 +4,7 @@ const { ASTRenderer } = require('./astRenderer');
 class Interpreter {
   constructor() {
     this.renderer = new ASTRenderer();
+    this.variables = new Map(); // Variable storage
   }
 
   visit(node) {
@@ -74,6 +75,19 @@ class Interpreter {
 
   visitRENDER(node) {
     return this.renderer.render(node.expression);
+  }
+
+  visitVARIABLE(node) {
+    if (!this.variables.has(node.name)) {
+      throw new Error(`Undefined variable: ${node.name}`);
+    }
+    return this.variables.get(node.name);
+  }
+
+  visitASSIGNMENT(node) {
+    const value = this.visit(node.value);
+    this.variables.set(node.name, value);
+    return value; // Return the assigned value for chaining
   }
 
   evaluate(ast) {

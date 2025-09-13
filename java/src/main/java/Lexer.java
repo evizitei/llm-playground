@@ -23,8 +23,11 @@ public class Lexer {
             
             if (Character.isDigit(current)) {
                 tokens.add(readNumber());
-            } else if (Character.isLetter(current)) {
-                tokens.add(readKeyword());
+            } else if (Character.isLetter(current) || current == '_') {
+                tokens.add(readIdentifier());
+            } else if (current == '=') {
+                tokens.add(new Token(TokenType.ASSIGN, "="));
+                position++;
             } else if (current == '!') {
                 tokens.add(new Token(TokenType.FACTORIAL, "!"));
                 position++;
@@ -57,19 +60,20 @@ public class Lexer {
         return new Token(TokenType.NUMBER, number.toString());
     }
     
-    private Token readKeyword() {
-        StringBuilder keyword = new StringBuilder();
-        
-        while (position < input.length() && Character.isLetter(input.charAt(position))) {
-            keyword.append(input.charAt(position));
+    private Token readIdentifier() {
+        StringBuilder identifier = new StringBuilder();
+
+        while (position < input.length() &&
+               (Character.isLetterOrDigit(input.charAt(position)) || input.charAt(position) == '_')) {
+            identifier.append(input.charAt(position));
             position++;
         }
-        
-        String word = keyword.toString();
+
+        String word = identifier.toString();
         if (word.equals("render")) {
             return new Token(TokenType.RENDER, word);
         } else {
-            throw new IllegalArgumentException("Unknown keyword: " + word);
+            return new Token(TokenType.IDENTIFIER, word);
         }
     }
     
@@ -85,6 +89,8 @@ enum TokenType {
     LPAREN,
     RPAREN,
     RENDER,
+    IDENTIFIER,
+    ASSIGN,
     EOF
 }
 

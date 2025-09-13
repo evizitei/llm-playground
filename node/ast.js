@@ -35,4 +35,19 @@ class RenderNode extends ASTNode {
   }
 }
 
-module.exports = { ASTNode, NumberNode, BinaryOpNode, UnaryOpNode, RenderNode };
+class AssignmentNode extends ASTNode {
+  constructor(name, value) {
+    super('ASSIGNMENT');
+    this.name = name;
+    this.value = value;
+  }
+}
+
+class VariableNode extends ASTNode {
+  constructor(name) {
+    super('VARIABLE');
+    this.name = name;
+  }
+}
+
+module.exports = { ASTNode, NumberNode, BinaryOpNode, UnaryOpNode, RenderNode, AssignmentNode, VariableNode };

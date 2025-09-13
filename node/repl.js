@@ -13,6 +13,7 @@ const rl = readline.createInterface({
 
 console.log('Calculator REPL v1.0');
 console.log('Enter arithmetic expressions using integers and operators (+, -, *, /, %, ^, !)');
+console.log('Variables: assign with "x = 5", use in expressions like "x + 3"');
 console.log('Type "exit" or press Ctrl+C to quit\n');
 
 const interpreter = new Interpreter();

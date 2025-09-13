@@ -76,8 +76,45 @@ RSpec.describe Lexer do
 
     it 'raises error for invalid characters' do
       lexer = Lexer.new('10 $ 20')
-      
+
       expect { lexer.tokenize }.to raise_error(/Unexpected character: '\$' at position/)
+    end
+
+    it 'tokenizes assignment operator' do
+      lexer = Lexer.new('=')
+      tokens = lexer.tokenize
+
+      expect(tokens.length).to eq(1)
+      expect(tokens[0].type).to eq(:ASSIGN)
+      expect(tokens[0].value).to eq('=')
+    end
+
+    it 'tokenizes identifiers' do
+      lexer = Lexer.new('x myVar _underscore')
+      tokens = lexer.tokenize
+
+      expect(tokens.length).to eq(3)
+      expect(tokens.map(&:type)).to eq([:IDENTIFIER, :IDENTIFIER, :IDENTIFIER])
+      expect(tokens.map(&:value)).to eq(['x', 'myVar', '_underscore'])
+    end
+
+    it 'tokenizes assignment expressions' do
+      lexer = Lexer.new('x = 42')
+      tokens = lexer.tokenize
+
+      expect(tokens.map(&:type)).to eq([:IDENTIFIER, :ASSIGN, :INTEGER])
+      expect(tokens[0].value).to eq('x')
+      expect(tokens[1].value).to eq('=')
+      expect(tokens[2].value).to eq(42)
+    end
+
+    it 'handles render as reserved word' do
+      lexer = Lexer.new('render x + 5')
+      tokens = lexer.tokenize
+
+      expect(tokens.map(&:type)).to eq([:RENDER, :IDENTIFIER, :PLUS, :INTEGER])
+      expect(tokens[0].value).to eq('render')
+      expect(tokens[1].value).to eq('x')
     end
   end
 end

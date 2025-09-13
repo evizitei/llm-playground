@@ -14,7 +14,41 @@ public class Parser {
         if (getCurrentToken().type == TokenType.RENDER) {
             advance();
             ASTNode expr = parseExpression();
+            validateEndOfInput();
             return new RenderNode(expr);
+        }
+        ASTNode result = parseAssignment();
+        validateEndOfInput();
+        return result;
+    }
+
+    private void validateEndOfInput() {
+        Token currentToken = getCurrentToken();
+        if (currentToken.type != TokenType.EOF) {
+            if (currentToken.type == TokenType.RPAREN) {
+                throw new IllegalArgumentException("Unexpected closing parenthesis");
+            } else {
+                throw new IllegalArgumentException("Unexpected token at end of expression: " + currentToken);
+            }
+        }
+    }
+
+    private ASTNode parseAssignment() {
+        // Look ahead to see if this is an assignment
+        if (getCurrentToken().type == TokenType.IDENTIFIER) {
+            int savedPosition = current;
+            String varName = getCurrentToken().value;
+            advance();
+
+            if (getCurrentToken().type == TokenType.ASSIGN) {
+                // This is an assignment
+                advance(); // consume the '='
+                ASTNode value = parseExpression();
+                return new AssignmentNode(varName, value);
+            } else {
+                // Not an assignment, restore position and parse as expression
+                current = savedPosition;
+            }
         }
         return parseExpression();
     }
@@ -78,6 +112,11 @@ public class Parser {
         if (token.type == TokenType.NUMBER) {
             advance();
             return new NumberNode(Integer.parseInt(token.value));
+        }
+
+        if (token.type == TokenType.IDENTIFIER) {
+            advance();
+            return new VariableNode(token.value);
         }
         
         if (token.type == TokenType.LPAREN) {

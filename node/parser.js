@@ -1,5 +1,5 @@
 const { TokenType } = require('./lexer');
-const { NumberNode, BinaryOpNode, UnaryOpNode, RenderNode } = require('./ast');
+const { NumberNode, BinaryOpNode, UnaryOpNode, RenderNode, AssignmentNode, VariableNode } = require('./ast');
 
 class Parser {
   constructor(tokens) {
@@ -26,6 +26,11 @@ class Parser {
     if (token.type === TokenType.NUMBER) {
       this.advance();
       return new NumberNode(token.value);
+    }
+
+    if (token.type === TokenType.IDENTIFIER) {
+      this.advance();
+      return new VariableNode(token.value);
     }
 
     if (token.type === TokenType.LPAREN) {
@@ -80,6 +85,24 @@ class Parser {
     return node;
   }
 
+  assignment() {
+    const node = this.expression();
+
+    // Check if this is an assignment
+    if (this.currentToken.type === TokenType.ASSIGN) {
+      // The left side must be an identifier
+      if (node.type !== 'VARIABLE') {
+        throw new Error('Invalid assignment target');
+      }
+
+      this.advance(); // consume '='
+      const value = this.assignment(); // Right associative
+      return new AssignmentNode(node.name, value);
+    }
+
+    return node;
+  }
+
   statement() {
     if (this.currentToken.type === TokenType.RENDER) {
       this.advance();
@@ -87,14 +110,14 @@ class Parser {
         throw new Error('Expected opening parenthesis after render');
       }
       this.advance();
-      const expr = this.expression();
+      const expr = this.assignment();
       if (this.currentToken.type !== TokenType.RPAREN) {
         throw new Error('Expected closing parenthesis');
       }
       this.advance();
       return new RenderNode(expr);
     }
-    return this.expression();
+    return this.assignment();
   }
 
   parse() {

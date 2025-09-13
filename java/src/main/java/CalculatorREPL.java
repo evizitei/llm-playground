@@ -8,6 +8,8 @@ public class CalculatorREPL {
         System.out.println("Enter arithmetic expressions using integers and operators (+, -, *, /, %, ^)");
         System.out.println("Supports parentheses for grouping");
         System.out.println("Supports prefix factorial (!n) - e.g., !3 = 6");
+        System.out.println("Supports variables: assign with 'x = 5', use with 'x + 3'");
+        System.out.println("Variable names can contain letters, numbers, and underscores");
         System.out.println("Use 'render <expression>' to see the AST structure");
         System.out.println("Type 'exit' or 'quit' to end the session");
         System.out.println();

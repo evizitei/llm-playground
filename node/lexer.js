@@ -1,5 +1,7 @@
 const TokenType = {
   NUMBER: 'NUMBER',
+  IDENTIFIER: 'IDENTIFIER',
+  ASSIGN: 'ASSIGN',
   PLUS: 'PLUS',
   MINUS: 'MINUS',
   MULTIPLY: 'MULTIPLY',
@@ -53,9 +55,16 @@ class Lexer {
 
   identifier() {
     let idStr = '';
-    while (this.currentChar !== null && /[a-zA-Z]/.test(this.currentChar)) {
+    // First character must be letter or underscore
+    if (this.currentChar !== null && /[a-zA-Z_]/.test(this.currentChar)) {
       idStr += this.currentChar;
       this.advance();
+
+      // Subsequent characters can be letters, numbers, or underscores
+      while (this.currentChar !== null && /[a-zA-Z0-9_]/.test(this.currentChar)) {
+        idStr += this.currentChar;
+        this.advance();
+      }
     }
     return idStr;
   }
@@ -67,16 +76,21 @@ class Lexer {
         continue;
       }
 
-      if (/[a-zA-Z]/.test(this.currentChar)) {
+      if (/[a-zA-Z_]/.test(this.currentChar)) {
         const id = this.identifier();
         if (id === 'render') {
           return new Token(TokenType.RENDER, 'render');
         }
-        throw new Error(`Unknown identifier: ${id}`);
+        return new Token(TokenType.IDENTIFIER, id);
       }
 
       if (/\d/.test(this.currentChar)) {
         return new Token(TokenType.NUMBER, this.number());
+      }
+
+      if (this.currentChar === '=') {
+        this.advance();
+        return new Token(TokenType.ASSIGN, '=');
       }
 
       if (this.currentChar === '+') {

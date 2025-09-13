@@ -102,3 +102,92 @@ test('!0', 1); // 0! = 1
 test('1 ^ 100', 1);
 test('0 ^ 5', 0);
 test('5 ^ 0', 1);
+
+// Test variable functionality with shared interpreter
+function testVariable(expression, expected, interpreter) {
+  try {
+    const lexer = new Lexer(expression);
+    const tokens = lexer.tokenize();
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+    const result = interpreter.evaluate(ast);
+
+    if (result === expected) {
+      console.log(`✓ ${expression} = ${result}`);
+      return true;
+    } else {
+      console.log(`✗ ${expression} = ${result} (expected ${expected})`);
+      return false;
+    }
+  } catch (error) {
+    console.log(`✗ ${expression} - Error: ${error.message}`);
+    return false;
+  }
+}
+
+function testVariableError(expression, expectedError, interpreter) {
+  try {
+    const lexer = new Lexer(expression);
+    const tokens = lexer.tokenize();
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+    interpreter.evaluate(ast);
+    console.log(`✗ ${expression} - Expected error but got result`);
+    return false;
+  } catch (error) {
+    if (error.message.includes(expectedError)) {
+      console.log(`✓ ${expression} - Error: ${error.message}`);
+      return true;
+    } else {
+      console.log(`✗ ${expression} - Wrong error: ${error.message} (expected: ${expectedError})`);
+      return false;
+    }
+  }
+}
+
+console.log('\nVariable functionality:');
+const varInterpreter = new Interpreter();
+
+console.log('\nBasic variable assignment and usage:');
+testVariable('x = 5', 5, varInterpreter);
+testVariable('x', 5, varInterpreter);
+testVariable('y = 10', 10, varInterpreter);
+testVariable('x + y', 15, varInterpreter);
+
+console.log('\nVariable expressions:');
+testVariable('z = x * y', 50, varInterpreter);
+testVariable('z', 50, varInterpreter);
+testVariable('w = z / 5', 10, varInterpreter);
+testVariable('result = x + y * z', 505, varInterpreter); // 5 + 10 * 50
+
+console.log('\nVariable reassignment:');
+testVariable('x = 100', 100, varInterpreter);
+testVariable('x', 100, varInterpreter);
+testVariable('x + y', 110, varInterpreter); // 100 + 10
+
+console.log('\nComplex expressions with variables:');
+testVariable('a = 2', 2, varInterpreter);
+testVariable('b = 3', 3, varInterpreter);
+testVariable('power_result = a ^ b', 8, varInterpreter); // 2^3
+testVariable('factorial_result = !4', 24, varInterpreter); // !4 = 24
+testVariable('combined = power_result + factorial_result', 32, varInterpreter); // 8 + 24
+
+console.log('\nVariable identifier validation:');
+testVariable('myVar = 42', 42, varInterpreter);
+testVariable('myVar', 42, varInterpreter);
+testVariable('_underscore = 15', 15, varInterpreter);
+testVariable('_underscore', 15, varInterpreter);
+testVariable('var123 = 999', 999, varInterpreter);
+testVariable('var123', 999, varInterpreter);
+
+console.log('\nChained assignments:');
+testVariable('chain = x = y = 7', 7, varInterpreter);
+testVariable('x', 7, varInterpreter);
+testVariable('y', 7, varInterpreter);
+testVariable('chain', 7, varInterpreter);
+
+console.log('\nError cases:');
+const errorInterpreter = new Interpreter();
+testVariableError('undefined_var', 'Undefined variable', errorInterpreter);
+testVariableError('5 = x', 'Invalid assignment target', errorInterpreter);
+testVariableError('(x + 1) = 5', 'Invalid assignment target', errorInterpreter);

@@ -153,5 +153,62 @@ RSpec.describe Parser do
     it 'raises error for unexpected operator' do
       expect { parse('+ 10') }.to raise_error(/Expected integer/)
     end
+
+    it 'parses variable references' do
+      ast = parse('x')
+
+      expect(ast).to be_a(AST::VariableNode)
+      expect(ast.name).to eq('x')
+    end
+
+    it 'parses simple assignment' do
+      ast = parse('x = 42')
+
+      expect(ast).to be_a(AST::AssignmentNode)
+      expect(ast.name).to eq('x')
+      expect(ast.value).to be_a(AST::IntegerNode)
+      expect(ast.value.value).to eq(42)
+    end
+
+    it 'parses assignment with expression' do
+      ast = parse('y = 3 + 4')
+
+      expect(ast).to be_a(AST::AssignmentNode)
+      expect(ast.name).to eq('y')
+      expect(ast.value).to be_a(AST::BinaryOpNode)
+      expect(ast.value.operator).to eq('+')
+    end
+
+    it 'parses expressions with variables' do
+      ast = parse('x + 10')
+
+      expect(ast).to be_a(AST::BinaryOpNode)
+      expect(ast.operator).to eq('+')
+      expect(ast.left).to be_a(AST::VariableNode)
+      expect(ast.left.name).to eq('x')
+      expect(ast.right).to be_a(AST::IntegerNode)
+      expect(ast.right.value).to eq(10)
+    end
+
+    it 'parses chained assignments (right associative)' do
+      ast = parse('x = y = 5')
+
+      expect(ast).to be_a(AST::AssignmentNode)
+      expect(ast.name).to eq('x')
+      expect(ast.value).to be_a(AST::AssignmentNode)
+      expect(ast.value.name).to eq('y')
+      expect(ast.value.value.value).to eq(5)
+    end
+
+    it 'parses variables in parentheses' do
+      ast = parse('(x + y) * z')
+
+      expect(ast).to be_a(AST::BinaryOpNode)
+      expect(ast.operator).to eq('*')
+      expect(ast.left).to be_a(AST::BinaryOpNode)
+      expect(ast.left.left).to be_a(AST::VariableNode)
+      expect(ast.left.right).to be_a(AST::VariableNode)
+      expect(ast.right).to be_a(AST::VariableNode)
+    end
   end
 end

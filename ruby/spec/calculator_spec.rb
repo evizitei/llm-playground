@@ -102,7 +102,7 @@ RSpec.describe Calculator do
     end
 
     it 'raises error for invalid syntax' do
-      expect { calculator.calculate('10 +') }.to raise_error(/Expected integer or '\(' but got EOF/)
+      expect { calculator.calculate('10 +') }.to raise_error(/Expected integer, identifier, or '\(' but got EOF/)
     end
 
     it 'raises error for invalid characters' do

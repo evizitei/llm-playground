@@ -26,7 +26,20 @@ class Parser
   private
 
   def expression
-    additive_expression
+    assignment_expression
+  end
+
+  def assignment_expression
+    expr = additive_expression
+
+    # Check if this is an assignment (identifier = expression)
+    if current_token && current_token.type == :ASSIGN && expr.is_a?(AST::VariableNode)
+      consume(:ASSIGN)
+      value_expr = assignment_expression
+      return AST::AssignmentNode.new(expr.name, value_expr)
+    end
+
+    expr
   end
 
   def additive_expression
@@ -73,13 +86,17 @@ class Parser
       value = current_token.value
       consume(:INTEGER)
       AST::IntegerNode.new(value)
+    elsif current_token && current_token.type == :IDENTIFIER
+      name = current_token.value
+      consume(:IDENTIFIER)
+      AST::VariableNode.new(name)
     elsif current_token && current_token.type == :LPAREN
       consume(:LPAREN)
       expr = expression
       consume(:RPAREN)
       expr
     else
-      raise "Expected integer or '(' but got #{current_token ? current_token.value : 'EOF'}"
+      raise "Expected integer, identifier, or '(' but got #{current_token ? current_token.value : 'EOF'}"
     end
   end
 

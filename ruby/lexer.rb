@@ -2,7 +2,9 @@
 class Lexer
   TOKEN_TYPES = {
     RENDER: /\Arender/,
+    IDENTIFIER: /\A[a-zA-Z_][a-zA-Z0-9_]*/,
     INTEGER: /\A\d+/,
+    ASSIGN: /\A=/,
     PLUS: /\A\+/,
     MINUS: /\A-/,
     MULTIPLY: /\A\*/,
@@ -42,9 +44,11 @@ class Lexer
       if match = remaining.match(pattern)
         value = match[0]
         @position += value.length
-        
+
         if type == :INTEGER
           return Token.new(type, value.to_i)
+        elsif type == :IDENTIFIER && value == 'render'
+          return Token.new(:RENDER, value)
         else
           return Token.new(type, value)
         end
