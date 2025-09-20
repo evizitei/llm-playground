@@ -2,9 +2,11 @@ import os
 import json
 import hashlib
 import sys
+import argparse
 import numpy as np
 import dotenv
 import voyageai
+import anthropic
 
 def load_docs():
     filenames = ["java/README.md", "node/README.md", "ruby/README.md", "./README.md"]
@@ -83,24 +85,91 @@ def rank_documents_by_similarity(query_embedding, doc_embeddings):
     similarities.sort(key=lambda x: x[1], reverse=True)
     return similarities
 
+def similarity_mode(query):
+    """Run similarity mode: rank documents by relevance to query."""
+    print(f"Searching for: {query}")
+
+    readme_texts = load_docs()
+    doc_embeddings = embed_docs(readme_texts)
+
+    query_embedding = embed_query(query)
+    ranked_docs = rank_documents_by_similarity(query_embedding, doc_embeddings)
+
+    print("\nDocuments ranked by relevance:")
+    for i, (doc_name, similarity) in enumerate(ranked_docs, 1):
+        print(f"{i}. {doc_name} (similarity: {similarity:.4f})")
+
+    return ranked_docs
+
+def rag_mode(query):
+    """Run RAG mode: find most relevant document and use it as context for Claude API."""
+    print(f"RAG query: {query}")
+
+    readme_texts = load_docs()
+    doc_embeddings = embed_docs(readme_texts)
+
+    query_embedding = embed_query(query)
+    ranked_docs = rank_documents_by_similarity(query_embedding, doc_embeddings)
+
+    top_doc_name, top_similarity = ranked_docs[0]
+    top_doc_content = readme_texts[top_doc_name]
+
+    print(f"\nUsing most relevant document: {top_doc_name} (similarity: {top_similarity:.4f})")
+
+    prompt = f"""Based on the following documentation, please answer the user's question.
+
+Documentation from {top_doc_name}:
+{top_doc_content}
+
+User question: {query}
+
+Please provide a helpful answer based on the documentation above."""
+
+    client = anthropic.Anthropic(api_key=os.getenv("CLAUDE_API_KEY"))
+
+    try:
+        message = client.messages.create(
+            model="claude-3-7-sonnet-20250219",
+            max_tokens=1000,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        print(f"\nClaude's response:")
+        print(message.content[0].text)
+
+    except Exception as e:
+        print(f"Error calling Claude API: {e}")
+        print("Make sure you have set the CLAUDE_API_KEY environment variable.")
+
 
 
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
 
-    readme_texts = load_docs()
-    embeddings = embed_docs(readme_texts)
+    parser = argparse.ArgumentParser(description="RAG system for searching and querying documents")
+    parser.add_argument("mode", choices=["similarity", "rag"],
+                       help="Mode: 'similarity' to rank documents by relevance, 'rag' to get AI answer with context")
+    parser.add_argument("query", help="Query string to search for")
 
-    if len(sys.argv) > 1:
-        query = sys.argv[1]
-        print(f"Searching for: {query}")
-        query_embedding = embed_query(query)
-        ranked_docs = rank_documents_by_similarity(query_embedding, embeddings)
-
-        print("\nDocuments ranked by relevance:")
-        for i, (doc_name, similarity) in enumerate(ranked_docs, 1):
-            print(f"{i}. {doc_name} (similarity: {similarity:.4f})")
-    else:
+    # Handle backward compatibility with old usage
+    if len(sys.argv) == 2 and sys.argv[1] not in ["similarity", "rag"]:
+        # Old usage: python script.py "query"
+        print("Legacy mode detected. Running similarity search...")
+        similarity_mode(sys.argv[1])
+    elif len(sys.argv) == 1:
+        # No arguments - just generate embeddings
+        readme_texts = load_docs()
+        embeddings = embed_docs(readme_texts)
         print(f"Loaded embeddings for {len(embeddings)} documents")
+    else:
+        # New argparse usage
+        args = parser.parse_args()
+
+        if args.mode == "similarity":
+            similarity_mode(args.query)
+        elif args.mode == "rag":
+            rag_mode(args.query)
     
