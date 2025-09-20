@@ -1,6 +1,8 @@
 import os
 import json
 import hashlib
+import sys
+import numpy as np
 import dotenv
 import voyageai
 
@@ -57,15 +59,48 @@ def embed_docs(readme_texts):
         print(response)
         print("-" * 100)
     
-    # Save to cache
     save_embeddings_to_disk(embeddings, docs_hash)
     return embeddings
 
-    
+def embed_query(query_text):
+    voyage_client = voyageai.Client(api_key=os.getenv("VOYAGE_API_KEY"))
+    response = voyage_client.embed([query_text], model="voyage-3.5-lite", input_type="query")
+    return response.embeddings[0]
+
+def cosine_similarity(vec1, vec2):
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
+    dot_product = np.dot(vec1, vec2)
+    norm1 = np.linalg.norm(vec1)
+    norm2 = np.linalg.norm(vec2)
+    return dot_product / (norm1 * norm2)
+
+def rank_documents_by_similarity(query_embedding, doc_embeddings):
+    similarities = []
+    for doc_name, doc_embedding in doc_embeddings.items():
+        similarity = cosine_similarity(query_embedding, doc_embedding)
+        similarities.append((doc_name, similarity))
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    return similarities
+
+
 
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
+
     readme_texts = load_docs()
     embeddings = embed_docs(readme_texts)
-    print(f"Loaded embeddings for {len(embeddings)} documents")
+
+    if len(sys.argv) > 1:
+        query = sys.argv[1]
+        print(f"Searching for: {query}")
+        query_embedding = embed_query(query)
+        ranked_docs = rank_documents_by_similarity(query_embedding, embeddings)
+
+        print("\nDocuments ranked by relevance:")
+        for i, (doc_name, similarity) in enumerate(ranked_docs, 1):
+            print(f"{i}. {doc_name} (similarity: {similarity:.4f})")
+    else:
+        print(f"Loaded embeddings for {len(embeddings)} documents")
+    
