@@ -4,7 +4,6 @@ import hashlib
 import dotenv
 import voyageai
 
-# load docs into text balls
 def load_docs():
     filenames = ["java/README.md", "node/README.md", "ruby/README.md", "./README.md"]
     readme_texts = {filename: open(filename).read() for filename in filenames}
